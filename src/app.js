@@ -1,19 +1,12 @@
-import React,{useState} from 'react'
+import React from 'react'
+import {Route} from 'react-router-dom'
 
-function App(params){
-  const [count,setCount]=useState(1)
-  const btnStyle={
-    clolr:'blue',
-    cursor:'pointer',
-    marginLeft:'50px'
-  }
-  return (
-    <div>
-      <h1>Hello {params.title}!!</h1>
-      <h2>我现在是number:{count}</h2>
-      <button onClick={()=>setCount(count+1)} style={btnStyle}>ADD</button>
-    </div>
-  )
-}
+import Index from './container/Index'
+import About from './container/About'
 
-export default <App title='React SSR 初次尝试'></App>
+export default (
+  <div>
+    <Route path='/' exact component={Index}></Route>
+    <Route path='/about' exact component={About}></Route>
+  </div>  
+)
