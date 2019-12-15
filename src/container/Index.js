@@ -5,7 +5,10 @@ import {getIndexList} from '../store/index'
 function Index(props){
   const [count,setCount]=useState(1)
   useEffect(()=>{
-    props.getIndexList()
+    if(!props.list.length){
+      // 客户端数据请求
+      props.getIndexList()
+    }    
   },[])
   const btnStyle={
     clolr:'blue',
@@ -26,7 +29,9 @@ function Index(props){
     </div>
   )
 }
-
+Index.loadData=(store)=>{
+  return store.dispatch(getIndexList())
+}
 export default connect(
   state=>({list:state.index.list}),
   {getIndexList}

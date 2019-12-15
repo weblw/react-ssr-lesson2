@@ -16,6 +16,15 @@ app.get('/api/course/list',(req,res)=>{
     ]
   })
 })
+app.get('/api/course/user',(req,res)=>{
+  res.header('Access-Control-Allow-Origin','*')
+  res.header('Access-Control-Allow-Method','GET,POST,DELETE,PUT')
+  res.header('Content-Type',"application/json;charset=utf-8")
+  res.json({
+    code:0,
+    info:{name:'李伟',best:'写代码'}    
+  })
+})
 
 app.listen(9090,()=>{
   console.log('mock 数据准备就绪')

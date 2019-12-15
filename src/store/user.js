@@ -1,36 +1,36 @@
 // 首页逻辑
 import axios from 'axios'
 // actionTypes
-const GET_LIST='INDEX/GET_LIST'
+const USER_INFO='USER/USER_INFO'
 
 const defaultState={
-  list:[]
+  info:{}
 }
 
 // actionCreator
-const changeList=list=>({
-  type:GET_LIST,
-  list
+const getUser=info=>({
+  type:USER_INFO,
+  info
 })
 
-export const getIndexList=server=>{
+export const getUserList=server=>{
   return (dispatch,getState,axiosInstance)=>{
-    return axios.get('http://localhost:9098/api/course/list')
+    return axios.get('http://localhost:9098/api/course/user')
       .then(res=>{
-        const {list}=res.data
-        console.log(list)
-        dispatch(changeList(list))
+        const {info}=res.data
+        dispatch(getUser(info))
       })
   }
 }
 
 export default (state=defaultState,action)=>{
   switch(action.type){
-    case GET_LIST:
+    case USER_INFO:
       const newState={
         ...state,
-        list:action.list
+        info:action.info
       }
+      console.log(newState) 
       return newState
     default:
       return state
