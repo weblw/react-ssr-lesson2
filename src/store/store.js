@@ -15,7 +15,6 @@ const reducer=combineReducers({
 export const getClientStore=()=>{
   const defaultState=window.__context?window.__context:{}
   return createStore(reducer,defaultState,applyMiddleware(thunk))
-
 }
 export const getServerStore=()=>{
   return createStore(reducer,applyMiddleware(thunk))
