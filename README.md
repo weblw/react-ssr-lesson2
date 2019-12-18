@@ -1,8 +1,13 @@
 # 服务端渲染
-- 1、目的：解决SPA项目，首屏渲染时间长，不利于SEO
-- 2、解决思路：首屏请求时，服务端通过renderToString返回带html内容的数据，在浏览器端再通过hydrate注入js交互内容。最终在浏览器实现首屏SSR效果。
-- 3、使用concurrently解决一次启动多个命令，提升开发体验。
-- 4、在服务器端通过StaticRouter实现多页面SSR。
-- 5、数据请求处理：client端通过window.__context附上server端获取的初始值，在server端，通过调用组件定义的loadData方法获取数据。
-- 6、在server端通过封装promise解决多页面数据请求容错。
-- 7、通过server端的proxy解决数据请求跨域问题。
+
+- 1、目的：解决 SPA 项目，首屏渲染时间长，不利于 SEO
+- 2、解决思路：首屏请求时，服务端通过 renderToString 返回带 html 内容的数据，在浏览器端再通过 hydrate 注入 js 交互内容。最终在浏览器实现首屏 SSR 效果。
+- 3、使用 concurrently 解决一次启动多个命令，提升开发体验。
+- 4、在服务器端通过 StaticRouter 实现多页面 SSR。
+- 5、数据请求处理：client 端通过 window.\_\_context 附上 server 端获取的初始值，在 server 端，通过调用组件定义的 loadData 方法获取数据。
+- 6、在 server 端通过封装 promise 解决多页面数据请求容错。
+- 7、通过 server 端的 proxy 解决数据请求跨域问题。
+- 8、通过 thunk.withExtraArgument 传递 axios 实例，在客户端和服务端访问不同 baseURL
+- 9、客户端通过 style-loader 编译 css，在服务端通过 isomorphic-style-loader 编译 css
+- 10、在服务端通过传入 context 对象，404 页面通过在 staticContext 上添加 statuscode，
+  在服务端通过 context.statuscode 获取传递的 code，Redirect 页面通过 context.action 判断，如果是重定向页面，通过 res.redirect(301, context.url)重定向到目标页。

@@ -1,9 +1,11 @@
 import React from 'react'
 
-function About(){
-  return <div>
-    <h1>关于页面</h1>
-  </div>
+function About() {
+  return (
+    <div>
+      <h1>登录页面</h1>
+    </div>
+  )
 }
 
 export default About
