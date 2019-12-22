@@ -6,6 +6,9 @@ import routes from '../src/app'
 import { getServerStore } from '../src/store/store'
 import { Provider } from 'react-redux'
 import Header from '../src/component/Header'
+import path from 'path'
+import fs from 'fs'
+
 const store = getServerStore()
 const app = express()
 app.use(express.static('public'))
@@ -18,7 +21,22 @@ app.all('/api/*', function(req, res, next) {
   proxy.web(req, res, { target: 'http://localhost:9090', changeOrigin: true })
 })
 
+function csrRender(res) {
+  // 读取csr文件 返回
+  const filename = path.resolve(process.cwd(), 'public/index.csr.html')
+  const html = fs.readFileSync(filename, 'utf-8')
+  res.send(html)
+}
+
 app.get('*', (req, res) => {
+  if (req.query._mode == 'csr') {
+    console.log('url参数开启csr降级')
+    csrRender(res)
+  }
+  // 配置开关开启csr
+
+  // 负载过高开启csr
+
   // 获取根据路由渲染出来的组件，并且拿到lodaData方法
   let promises = []
   routes.some(route => {
@@ -38,7 +56,9 @@ app.get('*', (req, res) => {
   })
   Promise.all(promises)
     .then(() => {
-      const context = {}
+      const context = {
+        css: []
+      }
       // 渲染react页面
       const html = renderToString(
         <Provider store={store}>
@@ -59,12 +79,16 @@ app.get('*', (req, res) => {
       if (context.action === 'REPLACE') {
         res.redirect(301, context.url)
       }
+      const css = context.css.join('\n')
       res.send(
         `
       <html>
         <head>
           <meta charset="utf-8"/>
           <title>React SSR</title>
+          <style>
+            ${css}
+          </style>
         </head>
         <body>
           <div id="root">${html}</div>

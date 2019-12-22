@@ -19,5 +19,9 @@ const Page = (
   </Provider>
 )
 
-// 注水，渲染到页面
-ReactDom.hydrate(Page, document.getElementById('root'))
+if (window.__context) {
+  // 注水，渲染到页面
+  ReactDom.hydrate(Page, document.getElementById('root'))
+} else {
+  ReactDom.render(Page, document.getElementById('root'))
+}

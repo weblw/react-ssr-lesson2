@@ -11,3 +11,8 @@
 - 9、客户端通过 style-loader 编译 css，在服务端通过 isomorphic-style-loader 编译 css
 - 10、在服务端通过传入 context 对象，404 页面通过在 staticContext 上添加 statuscode，
   在服务端通过 context.statuscode 获取传递的 code，Redirect 页面通过 context.action 判断，如果是重定向页面，通过 res.redirect(301, context.url)重定向到目标页。
+- 11、通过 HtmlWebpackPlugin 打包 index.csr.html，在 server 端通过判断开启 csrRednder，
+  在 client 端，通过判断 window.\_\_context 全局变量来区分 csr 和 ssr 渲染，csr 渲染使用
+  ReactDom.render(),ssr 渲染时采用 ReactDom.hydrate()。
+- 12、通过 css module 方式实现组件内 css。通过高阶组件，在 props.staticContext 存在时，往
+  props.staticContext.css 中 push 组件 styles，在 server 端通过 context.css 拿到组件记录的 styles，通过字符串模板中的 style 标签，在服务端渲染组件内 css。
