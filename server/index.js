@@ -1,62 +1,94 @@
 import React from 'react'
-import {renderToString} from 'react-dom/server'
+import { renderToString } from 'react-dom/server'
 import express from 'express'
-import {StaticRouter,matchPath,Route} from 'react-router-dom'
+import { StaticRouter, matchPath, Route, Switch } from 'react-router-dom'
 import routes from '../src/app'
-import {getServerStore} from '../src/store/store'
-import {Provider} from 'react-redux'
+import { getServerStore } from '../src/store/store'
+import { Provider } from 'react-redux'
 import Header from '../src/component/Header'
-const store=getServerStore()
-const app=express()
+import path from 'path'
+import fs from 'fs'
+
+const store = getServerStore()
+const app = express()
 app.use(express.static('public'))
+
 import httpProxy from 'http-proxy'
 // 代理请求到后台
-var proxy=httpProxy.createProxyServer({changeOrigin:true})
-app.all('/api/*',function(req,res,next){
+var proxy = httpProxy.createProxyServer({ changeOrigin: true })
+app.all('/api/*', function(req, res, next) {
   console.log(req.path)
-  proxy.web(req,res,{target:'http://localhost:9090',changeOrigin:true})
+  proxy.web(req, res, { target: 'http://localhost:9090', changeOrigin: true })
 })
 
-app.get('*',(req,res)=>{
+function csrRender(res) {
+  // 读取csr文件 返回
+  const filename = path.resolve(process.cwd(), 'public/index.csr.html')
+  const html = fs.readFileSync(filename, 'utf-8')
+  res.send(html)
+}
+
+app.get('*', (req, res) => {
+  if (req.query._mode == 'csr') {
+    console.log('url参数开启csr降级')
+    csrRender(res)
+  }
+  // 配置开关开启csr
+
+  // 负载过高开启csr
+
   // 获取根据路由渲染出来的组件，并且拿到lodaData方法
-  let promises=[]
-  routes.some(route=>{
-    const match=matchPath(req.path,route)
-    if(match){
-      const {loadData}=route.component
-      if(loadData){
-        promises.push(loadData(store))
+  let promises = []
+  routes.some(route => {
+    const match = matchPath(req.path, route)
+    if (match) {
+      const { loadData } = route.component
+      if (loadData) {
+        let promise = new Promise((resolve, reject) => {
+          // 强制规避报错 可以打印错误日志
+          loadData(store)
+            .then(resolve)
+            .catch(resolve)
+        })
+        promises.push(promise)
       }
     }
   })
-  // 重新封装promise，避免一个请求出错终端程序
-  let newPromises=[]
-  promises.forEach(promise=>{
-    let newPromise=new Promise((resolve,reject)=>{
-      promise.then(
-        resolve(promise)
-      ).catch(()=>{
-        console.log('有页面出错了')
-      })
-    })
-    newPromises.push(newPromise)
-  })
-  Promise.all(newPromises).then(()=>{
-    // 渲染react页面
-    const html=renderToString(
-      <Provider store={store}>
-        <StaticRouter location={req.url}>
-          <Header></Header>
-          {routes.map(route=><Route {...route}></Route>)}
-        </StaticRouter>
-      </Provider>   
-    )
-    res.send(
-      `
+  Promise.all(promises)
+    .then(() => {
+      const context = {
+        css: []
+      }
+      // 渲染react页面
+      const html = renderToString(
+        <Provider store={store}>
+          <StaticRouter location={req.url} context={context}>
+            <Header></Header>
+            <Switch>
+              {routes.map(route => (
+                <Route {...route}></Route>
+              ))}
+            </Switch>
+          </StaticRouter>
+        </Provider>
+      )
+      console.log('context', context)
+      if (context.statuscode) {
+        res.status(context.statuscode)
+      }
+      if (context.action === 'REPLACE') {
+        res.redirect(301, context.url)
+      }
+      const css = context.css.join('\n')
+      res.send(
+        `
       <html>
         <head>
           <meta charset="utf-8"/>
           <title>React SSR</title>
+          <style>
+            ${css}
+          </style>
         </head>
         <body>
           <div id="root">${html}</div>
@@ -67,12 +99,13 @@ app.get('*',(req,res)=>{
         <script src="/bundle_client.js"></script>
       </html>
       `
-    )
-  }).catch(()=>{
-    console.log('所有页面都错了')
-  })
+      )
+    })
+    .catch(e => {
+      console.log(e, '所有页面都错了')
+    })
 })
 
-app.listen(9098,()=>{
+app.listen(9098, () => {
   console.log('启动在9098端口！！')
 })
