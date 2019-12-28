@@ -8,6 +8,7 @@ import { Provider } from 'react-redux'
 import Header from '../src/component/Header'
 import path from 'path'
 import fs from 'fs'
+import config from './config'
 
 const store = getServerStore()
 const app = express()
@@ -29,9 +30,9 @@ function csrRender(res) {
 }
 
 app.get('*', (req, res) => {
-  if (req.query._mode == 'csr') {
+  if (config.csr) {
     console.log('url参数开启csr降级')
-    csrRender(res)
+    return csrRender(res)
   }
   // 配置开关开启csr
 

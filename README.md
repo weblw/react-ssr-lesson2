@@ -15,4 +15,10 @@
   在 client 端，通过判断 window.\_\_context 全局变量来区分 csr 和 ssr 渲染，csr 渲染使用
   ReactDom.render(),ssr 渲染时采用 ReactDom.hydrate()。
 - 12、通过 css module 方式实现组件内 css。通过高阶组件，在 props.staticContext 存在时，往
-  props.staticContext.css 中 push 组件 styles，在 server 端通过 context.css 拿到组件记录的 styles，通过字符串模板中的 style 标签，在服务端渲染组件内 css。
+  props.staticContext.css 中 push 组件 styles.\_getCss()，在 server 端通过 context.css 拿到组件记录的 styles，通过字符串模板中的 style 标签，在服务端渲染组件内 css。
+- 13、使用 hoist-non-react-statics 在高阶组件中传递组件中的静态方法，完善 withStyle 高阶组件。
+- 14、使用 puppeteer 实现实现简单 SEO 优化。
+- 15、prerender 参考文档：
+  https://www.jianshu.com/p/840f8f233af5
+- 16、prerender-spa-plugin 参考文档：
+  https://segmentfault.com/a/1190000018182165?utm_source=tag-newest
